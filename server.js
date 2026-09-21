@@ -13,6 +13,8 @@ const TIKTOK_USER = (process.env.TIKTOK_USER || "pykayoffice").replace(/^@/, "")
 app.use(express.static(__dirname));
 
 let tiktok = null;
+let tiktokConnected = false;
+let currentRoomId = null;
 
 async function connectTikTok() {
   try {
@@ -65,6 +67,8 @@ async function connectTikTok() {
     });
 
     const state = await tiktok.connect();
+    tiktokConnected = true;
+currentRoomId = state.roomId;
 
     console.log(`Connected to @${TIKTOK_USER}, roomId=${state.roomId}`);
 
@@ -74,6 +78,8 @@ async function connectTikTok() {
     });
 
   } catch (err) {
+    tiktokConnected = false;
+currentRoomId = null;
     console.error("TikTok connect error:", err);
 
     io.emit("status", {
