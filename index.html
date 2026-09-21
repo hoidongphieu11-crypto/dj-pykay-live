@@ -1,27 +1,364 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>DJ PYKAY LIVE TEST</title>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>DJ PYKAY DANCE FLOOR</title>
+
 <style>
-html,body{margin:0;background:#070914;color:#fff;font-family:Arial;height:100%;overflow:hidden}
-main{height:100%;display:grid;place-items:center;text-align:center;padding:20px}
-#dot{font-size:60px}.ok{color:#35e57a}.bad{color:#ff4664}
-#event{font-size:28px;font-weight:900;margin:20px 0}
-#log{font-size:15px;opacity:.85;max-height:45vh;overflow:auto;width:100%;max-width:700px}
-.e{padding:8px;border-bottom:1px solid #ffffff22}
-</style></head><body><main><div>
-<div id="dot">●</div><h1>DJ PYKAY LIVE BRIDGE</h1>
-<div id="status">Đang kết nối TikTok…</div><div id="event">Chờ sự kiện LIVE</div><div id="log"></div>
-</div></main>
-<script src="/socket.io/socket.io.js"></script><script>
-const s=io(), st=document.querySelector("#status"), dot=document.querySelector("#dot"),
-ev=document.querySelector("#event"), log=document.querySelector("#log");
-s.on("status",x=>{if(x.connected){st.textContent="Đã kết nối @"+x.user;dot.className="ok"}
-else{st.textContent="Chưa kết nối: "+(x.error||"");dot.className="bad"}});
-s.on("tiktok",x=>{
- let t=x.type.toUpperCase()+" • @"+(x.user||"");
- if(x.type==="comment") t+=": "+x.text;
- if(x.type==="gift") t+=" gửi "+x.giftName+" x"+x.repeatCount;
- ev.textContent=t;
- let d=document.createElement("div");d.className="e";d.textContent=t;log.prepend(d);
+*{box-sizing:border-box}
+html,body{
+ margin:0;width:100%;height:100%;
+ overflow:hidden;
+ background:#03040c;
+ font-family:Arial,sans-serif;
+ color:white;
+}
+
+#stage{
+ position:relative;
+ width:100vw;height:100vh;
+ overflow:hidden;
+ background:
+ radial-gradient(circle at 50% 25%,#7b18ff55,transparent 32%),
+ radial-gradient(circle at 15% 60%,#00eaff33,transparent 30%),
+ radial-gradient(circle at 85% 60%,#ff008833,transparent 30%),
+ linear-gradient(#05051a,#090018 55%,#02030a);
+}
+
+/* LASER */
+.laser{
+ position:absolute;
+ top:16%;left:50%;
+ width:4px;height:65%;
+ transform-origin:top;
+ opacity:.6;
+ filter:blur(1px);
+ animation:laser 3s ease-in-out infinite alternate;
+}
+.l1{background:#00ffff;transform:rotate(38deg)}
+.l2{background:#ff00dd;transform:rotate(-38deg);animation-delay:-1s}
+.l3{background:#8b5cff;transform:rotate(18deg);animation-delay:-2s}
+
+@keyframes laser{
+ from{opacity:.15}
+ to{opacity:.85}
+}
+
+/* DJ */
+#dj{
+ position:absolute;
+ top:7%;left:50%;
+ transform:translateX(-50%);
+ text-align:center;
+ z-index:5;
+}
+
+.logo{
+ font-size:clamp(32px,9vw,64px);
+ font-weight:1000;
+ letter-spacing:3px;
+ text-shadow:
+ 0 0 10px #00eaff,
+ 0 0 25px #9b00ff,
+ 0 0 45px #ff0088;
+}
+
+.sub{
+ font-size:13px;
+ letter-spacing:5px;
+ margin-top:6px;
+ opacity:.8;
+}
+
+.booth{
+ margin:25px auto 0;
+ width:230px;height:75px;
+ border:2px solid #00eaff;
+ background:#09091ddd;
+ box-shadow:
+ 0 0 20px #00eaff,
+ inset 0 0 25px #7b18ff;
+ display:grid;
+ place-items:center;
+ font-size:25px;
+ font-weight:900;
+}
+
+/* CONNECTION */
+#status{
+ position:absolute;
+ top:2%;left:3%;
+ font-size:11px;
+ z-index:20;
+ opacity:.8;
+}
+.dot{
+ display:inline-block;
+ width:8px;height:8px;
+ border-radius:50%;
+ background:#ff3b3b;
+ margin-right:5px;
+}
+.connected{background:#24e57a}
+
+/* FLOOR */
+#floor{
+ position:absolute;
+ left:0;right:0;
+ bottom:0;
+ height:58%;
+ perspective:450px;
+ background:
+ linear-gradient(#ffffff12 1px,transparent 1px),
+ linear-gradient(90deg,#ffffff12 1px,transparent 1px);
+ background-size:48px 48px;
+ transform:rotateX(52deg) scale(1.45);
+ transform-origin:bottom;
+ box-shadow:inset 0 40px 80px #6a00ff22;
+}
+
+/* DANCERS */
+#dancers{
+ position:absolute;
+ left:0;right:0;
+ bottom:7%;
+ height:43%;
+ z-index:10;
+}
+
+.dancer{
+ position:absolute;
+ font-size:58px;
+ filter:drop-shadow(0 5px 8px #000);
+ animation:dance .55s ease-in-out infinite alternate;
+ user-select:none;
+}
+
+@keyframes dance{
+ from{transform:translateY(0) rotate(-8deg) scale(1)}
+ to{transform:translateY(-22px) rotate(8deg) scale(1.08)}
+}
+
+/* FX */
+.fx{
+ position:absolute;
+ pointer-events:none;
+ z-index:30;
+ font-size:38px;
+ animation:fly 1.8s ease-out forwards;
+}
+
+@keyframes fly{
+ 0%{transform:translateY(0) scale(.5);opacity:1}
+ 100%{transform:translateY(-420px) scale(1.8);opacity:0}
+}
+
+#flash{
+ position:absolute;
+ inset:0;
+ background:white;
+ opacity:0;
+ pointer-events:none;
+ z-index:25;
+}
+
+.flash{
+ animation:flash .45s ease-out;
+}
+
+@keyframes flash{
+ 0%{opacity:.7}
+ 100%{opacity:0}
+}
+
+#banner{
+ position:absolute;
+ top:42%;
+ left:50%;
+ transform:translate(-50%,-50%) scale(0);
+ z-index:40;
+ font-size:32px;
+ font-weight:1000;
+ text-align:center;
+ text-shadow:0 0 20px #ff00cc;
+}
+
+.showBanner{
+ animation:banner 1.6s ease-out;
+}
+
+@keyframes banner{
+ 0%{transform:translate(-50%,-50%) scale(.2);opacity:0}
+ 25%{transform:translate(-50%,-50%) scale(1.15);opacity:1}
+ 75%{transform:translate(-50%,-50%) scale(1);opacity:1}
+ 100%{transform:translate(-50%,-50%) scale(.3);opacity:0}
+}
+
+#counter{
+ position:absolute;
+ bottom:2%;
+ width:100%;
+ text-align:center;
+ font-size:12px;
+ opacity:.65;
+ z-index:50;
+}
+</style>
+</head>
+
+<body>
+
+<div id="stage">
+
+ <div id="status">
+  <span id="dot" class="dot"></span>
+  <span id="statusText">Đang kết nối...</span>
+ </div>
+
+ <div class="laser l1"></div>
+ <div class="laser l2"></div>
+ <div class="laser l3"></div>
+
+ <div id="dj">
+  <div class="logo">DJ PYKAY</div>
+  <div class="sub">MUSIC CONNECTS US</div>
+  <div class="booth">🎧 LIVE MIX 🎧</div>
+ </div>
+
+ <div id="floor"></div>
+ <div id="dancers"></div>
+
+ <div id="flash"></div>
+ <div id="banner"></div>
+
+ <div id="counter">DANCE FLOOR • LIVE</div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+const socket=io();
+
+const dancers=document.getElementById("dancers");
+const dot=document.getElementById("dot");
+const statusText=document.getElementById("statusText");
+const flash=document.getElementById("flash");
+const banner=document.getElementById("banner");
+
+const chars=[
+ "🐸","🐵","🐼","🦊","🐯","🐱",
+ "🐶","🐰","🦁","🐷","🤖","👽",
+ "👻","💀","🦄","🐲","🕺","💃"
+];
+
+let dancerCount=0;
+
+function randomChar(){
+ return chars[Math.floor(Math.random()*chars.length)];
+}
+
+function addDancer(big=false){
+ const d=document.createElement("div");
+ d.className="dancer";
+ d.textContent=randomChar();
+
+ d.style.left=(5+Math.random()*85)+"%";
+ d.style.bottom=(Math.random()*65)+"%";
+ d.style.animationDelay=(-Math.random())+"s";
+
+ if(big){
+   d.style.fontSize="95px";
+   d.style.zIndex="20";
+ }
+
+ dancers.appendChild(d);
+ dancerCount++;
+
+ if(dancers.children.length>18){
+   dancers.removeChild(dancers.firstChild);
+ }
+
+ document.getElementById("counter").textContent=
+   "🔥 "+dancerCount+" EVENTS • DJ PYKAY LIVE";
+}
+
+function particle(icon,count=10){
+ for(let i=0;i<count;i++){
+   const p=document.createElement("div");
+   p.className="fx";
+   p.textContent=icon;
+   p.style.left=(5+Math.random()*90)+"%";
+   p.style.bottom=(5+Math.random()*20)+"%";
+   p.style.animationDelay=(Math.random()*.4)+"s";
+   document.getElementById("stage").appendChild(p);
+   setTimeout(()=>p.remove(),2300);
+ }
+}
+
+function screenFlash(){
+ flash.classList.remove("flash");
+ void flash.offsetWidth;
+ flash.classList.add("flash");
+}
+
+function showBanner(text){
+ banner.textContent=text;
+ banner.classList.remove("showBanner");
+ void banner.offsetWidth;
+ banner.classList.add("showBanner");
+}
+
+/* vài dancer có sẵn */
+for(let i=0;i<6;i++) addDancer();
+
+socket.on("status",data=>{
+ if(data.connected){
+   dot.classList.add("connected");
+   statusText.textContent="LIVE • @"+data.user;
+ }else{
+   dot.classList.remove("connected");
+   statusText.textContent="Đang kết nối TikTok...";
+ }
 });
-</script></body></html>
+
+socket.on("tiktok",data=>{
+
+ if(data.type==="comment"){
+   addDancer();
+   particle("✨",5);
+ }
+
+ if(data.type==="like"){
+   particle("❤️",8);
+ }
+
+ if(data.type==="gift"){
+   addDancer(true);
+   screenFlash();
+   particle("🎁",14);
+   particle("🔥",10);
+   showBanner("🎁 GIFT! 🔥");
+ }
+
+ if(data.type==="follow"){
+   addDancer(true);
+   particle("👑",10);
+   showBanner("👑 NEW FOLLOW!");
+ }
+
+ if(data.type==="social"){
+   const a=String(data.action||"").toLowerCase();
+
+   if(a.includes("follow")){
+     addDancer(true);
+     particle("👑",10);
+     showBanner("👑 NEW FOLLOW!");
+   }
+ }
+});
+</script>
+
+</body>
+</html>
