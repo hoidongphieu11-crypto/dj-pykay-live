@@ -81,16 +81,22 @@ currentRoomId = state.roomId;
     tiktokConnected = false;
 currentRoomId = null;
     console.error("TikTok connect error:", err);
+io.emit("status", {
+  connected: false,
+  error: err?.message || String(err)
+});
 
-    io.emit("status", {
-      connected: false,
-      error: err?.message || String(err)
-    });
-
-    setTimeout(connectTikTok, 15000);
+setTimeout(connectTikTok, 15000);
   }
 }
-
+ 
+io.on("connection", (socket) => {
+  socket.emit("status", {
+    connected: tiktokConnected,
+    user: TIKTOK_USER,
+    roomId: currentRoomId
+  });
+});
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`DJ PYKAY bridge running on port ${PORT}`);
   connectTikTok();
