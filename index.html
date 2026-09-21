@@ -1,0 +1,27 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DJ PYKAY LIVE TEST</title>
+<style>
+html,body{margin:0;background:#070914;color:#fff;font-family:Arial;height:100%;overflow:hidden}
+main{height:100%;display:grid;place-items:center;text-align:center;padding:20px}
+#dot{font-size:60px}.ok{color:#35e57a}.bad{color:#ff4664}
+#event{font-size:28px;font-weight:900;margin:20px 0}
+#log{font-size:15px;opacity:.85;max-height:45vh;overflow:auto;width:100%;max-width:700px}
+.e{padding:8px;border-bottom:1px solid #ffffff22}
+</style></head><body><main><div>
+<div id="dot">●</div><h1>DJ PYKAY LIVE BRIDGE</h1>
+<div id="status">Đang kết nối TikTok…</div><div id="event">Chờ sự kiện LIVE</div><div id="log"></div>
+</div></main>
+<script src="/socket.io/socket.io.js"></script><script>
+const s=io(), st=document.querySelector("#status"), dot=document.querySelector("#dot"),
+ev=document.querySelector("#event"), log=document.querySelector("#log");
+s.on("status",x=>{if(x.connected){st.textContent="Đã kết nối @"+x.user;dot.className="ok"}
+else{st.textContent="Chưa kết nối: "+(x.error||"");dot.className="bad"}});
+s.on("tiktok",x=>{
+ let t=x.type.toUpperCase()+" • @"+(x.user||"");
+ if(x.type==="comment") t+=": "+x.text;
+ if(x.type==="gift") t+=" gửi "+x.giftName+" x"+x.repeatCount;
+ ev.textContent=t;
+ let d=document.createElement("div");d.className="e";d.textContent=t;log.prepend(d);
+});
+</script></body></html>
