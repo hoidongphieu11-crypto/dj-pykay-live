@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 10000;
 const TIKTOK_USER = (process.env.TIKTOK_USER || "pykayoffice").replace(/^@/, "");
 
 // index.html của bạn đang nằm ngay thư mục gốc
+app.get('/meme-sheet.jpg', (req,res)=>{res.type('jpg').sendFile(require('path').join(__dirname,'meme-sheet.jpg'));});
 app.use(express.static(__dirname));
 
 let tiktok = null;
